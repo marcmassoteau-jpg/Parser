@@ -66,9 +66,10 @@ function parseFieldValue(value: string, def: FieldDefinition): string | number |
   if (!value) return null
 
   switch (def.type) {
-    case 'number':
+    case 'number': {
       const num = parseFloat(value.replace(/,/g, ''))
       return isNaN(num) ? null : num
+    }
     case 'boolean':
       return value.toLowerCase() === 'true' || value === '1' || value.toLowerCase() === 'y'
     case 'date':
