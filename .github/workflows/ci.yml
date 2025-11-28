@@ -10,6 +10,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  pull-requests: write
 
 concurrency:
   group: "pages"
@@ -115,10 +116,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Auto-merge if tests pass
+      - name: Enable auto-merge for PR
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  cleanup-branch:
+    needs: [auto-merge]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+
+    steps:
+      - name: Delete feature branch after merge
         run: |
-          echo "All tests passed! Ready to merge to main."
-          echo "Manual merge required - auto-merge disabled for safety."
+          echo "Branch will be automatically deleted after PR merge."
+          echo "Configure 'Automatically delete head branches' in repository settings for automatic cleanup."
