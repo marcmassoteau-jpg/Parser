@@ -2,9 +2,12 @@
 
 A powerful, visual parser module that can easily integrate into any application. Parse and map data from CSV, Fixed Width, SWIFT FIN, ISO 20022, and custom formats with an intuitive, best-in-class UI/UX.
 
+**[Live Demo](https://marcmassoteau-jpg.github.io/Parser)**
+
 ![Visual Parser](https://img.shields.io/badge/React-18.2-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
+[![GitHub Pages](https://img.shields.io/badge/demo-live-brightgreen)](https://marcmassoteau-jpg.github.io/Parser)
 
 ## Features
 
