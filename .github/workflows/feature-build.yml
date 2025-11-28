@@ -1,0 +1,58 @@
+name: Feature Branch Build
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'claude/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Build application
+        run: npm run build
+
+      - name: Report build status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Build and tests passed! Ready for merge to main."
+          else
+            echo "❌ Build or tests failed. Please fix before merging."
+          fi
+
+  create-pr-comment:
+    needs: build-test
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Success notification
+        run: |
+          echo "🎉 Feature branch build successful!"
+          echo "All tests passed - safe to create PR to main branch."
