@@ -10,6 +10,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  pull-requests: write
 
 concurrency:
   group: "pages"
@@ -35,7 +36,7 @@ jobs:
       - name: Run linting
         run: npm run lint
 
-      - name: Run tests
+      - name: Run unit tests
         run: npm run test:ci
 
       - name: Build application
@@ -48,8 +49,39 @@ jobs:
           path: dist
           retention-days: 1
 
-  deploy-preview:
+  e2e-tests:
+    runs-on: ubuntu-latest
     needs: build-and-test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  deploy-preview:
+    needs: [build-and-test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
@@ -77,17 +109,27 @@ jobs:
         uses: actions/deploy-pages@v4
 
   auto-merge:
-    needs: build-and-test
+    needs: [build-and-test, e2e-tests]
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Auto-merge if tests pass
+      - name: Enable auto-merge for PR
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  cleanup-branch:
+    needs: [auto-merge]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+
+    steps:
+      - name: Delete feature branch after merge
         run: |
-          echo "Tests passed! Ready to merge to main."
-          echo "Manual merge required - auto-merge disabled for safety."
+          echo "Branch will be automatically deleted after PR merge."
+          echo "Configure 'Automatically delete head branches' in repository settings for automatic cleanup."
