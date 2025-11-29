@@ -9,7 +9,10 @@ import {
   Cog6ToothIcon,
   InformationCircleIcon,
   Bars3Icon,
+  EllipsisVerticalIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
+import clsx from 'clsx'
 
 interface HeaderProps {
   isMobile?: boolean
@@ -30,6 +33,7 @@ export function Header({ isMobile, onMenuClick }: HeaderProps) {
   } = useParserStore()
 
   const [showHelp, setShowHelp] = useState(false)
+  const [showMobileActions, setShowMobileActions] = useState(false)
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -206,46 +210,132 @@ export function Header({ isMobile, onMenuClick }: HeaderProps) {
 
         {isMobile && (
           <button
-            onClick={() => setShowHelp(!showHelp)}
-            className="p-2 bg-slate-100 text-slate-700 rounded-lg"
+            onClick={() => setShowMobileActions(!showMobileActions)}
+            className={clsx(
+              'p-2 rounded-lg transition-colors',
+              showMobileActions ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-700'
+            )}
           >
-            <InformationCircleIcon className="w-5 h-5" />
+            <EllipsisVerticalIcon className="w-5 h-5" />
           </button>
         )}
       </div>
 
+      {/* Mobile Actions Menu */}
+      {isMobile && showMobileActions && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setShowMobileActions(false)}
+          />
+          <div className="absolute top-14 right-3 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-fade-in">
+            <button
+              onClick={() => {
+                handleReparse()
+                setShowMobileActions(false)
+              }}
+              disabled={!rawData}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ArrowPathIcon className="w-5 h-5 text-slate-500" />
+              <span>Re-parse Data</span>
+            </button>
+
+            <button
+              onClick={() => {
+                handleExport()
+                setShowMobileActions(false)
+              }}
+              disabled={!rawData}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <CloudArrowDownIcon className="w-5 h-5 text-slate-500" />
+              <span>Export Config</span>
+            </button>
+
+            <div className="h-px bg-slate-200 my-2" />
+
+            <button
+              onClick={() => {
+                reset()
+                setShowMobileActions(false)
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <Cog6ToothIcon className="w-5 h-5 text-slate-500" />
+              <span>Reset All</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowMobileActions(false)
+                setShowHelp(true)
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <InformationCircleIcon className="w-5 h-5 text-slate-500" />
+              <span>Help & Tips</span>
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Help Modal */}
       {showHelp && (
-        <div className={`absolute ${isMobile ? 'top-14 right-4 left-4' : 'top-16 right-6 w-80'} bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 animate-fade-in`}>
-          <h3 className="font-semibold text-slate-900 mb-2">Getting Started</h3>
-          <ul className="text-sm text-slate-600 space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="text-primary-500 font-bold">1.</span>
-              Upload a file (CSV, Fixed Width, FIN, ISO 20022, or custom)
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary-500 font-bold">2.</span>
-              The parser auto-detects the format and parses the data
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary-500 font-bold">3.</span>
-              Adjust configuration in the {isMobile ? 'bottom' : 'right'} panel if needed
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary-500 font-bold">4.</span>
-              Use the mapping tab to map fields to your target schema
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary-500 font-bold">5.</span>
-              Export your configuration for reuse
-            </li>
-          </ul>
-          <button
-            onClick={() => setShowHelp(false)}
-            className="mt-4 w-full py-2 text-sm text-slate-600 hover:text-slate-900 transition-colors border border-slate-200 rounded-lg"
-          >
-            Close
-          </button>
-        </div>
+        <>
+          {isMobile && (
+            <div
+              className="fixed inset-0 bg-black/40 z-40"
+              onClick={() => setShowHelp(false)}
+            />
+          )}
+          <div className={clsx(
+            'bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 animate-fade-in',
+            isMobile
+              ? 'fixed top-1/2 left-4 right-4 -translate-y-1/2 max-h-[80vh] overflow-auto'
+              : 'absolute top-16 right-6 w-80'
+          )}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-slate-900">Getting Started</h3>
+              {isMobile && (
+                <button
+                  onClick={() => setShowHelp(false)}
+                  className="p-1 rounded-lg hover:bg-slate-100"
+                >
+                  <XMarkIcon className="w-5 h-5 text-slate-500" />
+                </button>
+              )}
+            </div>
+            <ul className="text-sm text-slate-600 space-y-2.5">
+              <li className="flex items-start gap-2">
+                <span className="text-primary-500 font-bold min-w-[20px]">1.</span>
+                <span>Upload a file (CSV, Fixed Width, FIN, ISO 20022, or custom)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary-500 font-bold min-w-[20px]">2.</span>
+                <span>The parser auto-detects the format and parses the data</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary-500 font-bold min-w-[20px]">3.</span>
+                <span>Adjust configuration in the {isMobile ? 'bottom' : 'right'} panel if needed</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary-500 font-bold min-w-[20px]">4.</span>
+                <span>Use the mapping tab to map fields to your target schema</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary-500 font-bold min-w-[20px]">5.</span>
+                <span>Export your configuration for reuse</span>
+              </li>
+            </ul>
+            <button
+              onClick={() => setShowHelp(false)}
+              className="mt-4 w-full py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors rounded-lg"
+            >
+              Got it
+            </button>
+          </div>
+        </>
       )}
     </header>
   )

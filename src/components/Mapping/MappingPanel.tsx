@@ -142,7 +142,7 @@ export function MappingPanel() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleAutoMap}
-              className="flex items-center gap-1 px-2 py-1 text-xs bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 active:bg-amber-200 transition-colors font-medium"
               title="Auto-map similar fields"
             >
               <SparklesIcon className="w-4 h-4" />
@@ -150,7 +150,7 @@ export function MappingPanel() {
             </button>
             <button
               onClick={handleExportMappings}
-              className="flex items-center gap-1 px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 active:bg-slate-300 transition-colors font-medium"
             >
               <CloudArrowDownIcon className="w-4 h-4" />
               Export
@@ -161,7 +161,7 @@ export function MappingPanel() {
         {!targetSchema && (
           <button
             onClick={loadDefaultSchema}
-            className="w-full py-2 text-sm text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
+            className="w-full py-3 text-sm font-medium text-primary-600 bg-primary-50 rounded-xl hover:bg-primary-100 active:bg-primary-200 transition-colors"
           >
             Load Sample Target Schema
           </button>
@@ -175,19 +175,19 @@ export function MappingPanel() {
           </div>
         )}
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {mappings.map((mapping) => (
             <div
               key={mapping.id}
-              className="p-3 bg-slate-50 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+              className="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors"
             >
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-start gap-2 mb-3">
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-slate-500 mb-1">Source</div>
+                  <div className="text-xs font-medium text-slate-500 mb-1.5">Source</div>
                   <select
                     value={mapping.sourceField}
                     onChange={(e) => updateMapping(mapping.id, { sourceField: e.target.value })}
-                    className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded bg-white"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white"
                   >
                     {sourceFields.map((field) => (
                       <option key={field} value={field}>
@@ -197,14 +197,14 @@ export function MappingPanel() {
                   </select>
                 </div>
 
-                <ArrowRightIcon className="w-5 h-5 text-slate-400 flex-shrink-0 mt-5" />
+                <ArrowRightIcon className="w-5 h-5 text-slate-400 flex-shrink-0 mt-7" />
 
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-slate-500 mb-1">Target</div>
+                  <div className="text-xs font-medium text-slate-500 mb-1.5">Target</div>
                   <select
                     value={mapping.targetField}
                     onChange={(e) => updateMapping(mapping.id, { targetField: e.target.value })}
-                    className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded bg-white"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white"
                   >
                     {targetFields.map((field) => (
                       <option key={field.id} value={field.name}>
@@ -216,9 +216,9 @@ export function MappingPanel() {
 
                 <button
                   onClick={() => removeMapping(mapping.id)}
-                  className="p-1.5 text-slate-400 hover:text-red-500 transition-colors mt-5"
+                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-6"
                 >
-                  <TrashIcon className="w-4 h-4" />
+                  <TrashIcon className="w-5 h-5" />
                 </button>
               </div>
 
@@ -229,7 +229,7 @@ export function MappingPanel() {
                     onChange={(e) =>
                       updateMapping(mapping.id, { transformation: e.target.value as TransformationType })
                     }
-                    className="w-full px-2 py-1 text-xs border border-slate-200 rounded bg-white"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white"
                   >
                     {transformations.map((t) => (
                       <option key={t.value} value={t.value}>
@@ -242,8 +242,8 @@ export function MappingPanel() {
                   type="text"
                   value={mapping.defaultValue || ''}
                   onChange={(e) => updateMapping(mapping.id, { defaultValue: e.target.value })}
-                  placeholder="Default value"
-                  className="flex-1 px-2 py-1 text-xs border border-slate-200 rounded"
+                  placeholder="Default"
+                  className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg"
                 />
               </div>
             </div>
@@ -251,14 +251,14 @@ export function MappingPanel() {
         </div>
 
         {showAddMapping && (
-          <div className="mt-3 p-3 bg-primary-50 rounded-lg border border-primary-200">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex-1">
-                <label className="block text-xs text-slate-500 mb-1">Source Field</label>
+          <div className="mt-4 p-4 bg-primary-50 rounded-xl border border-primary-200">
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">Source Field</label>
                 <select
                   value={newMapping.sourceField || ''}
                   onChange={(e) => setNewMapping({ ...newMapping, sourceField: e.target.value })}
-                  className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded bg-white"
+                  className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white"
                 >
                   <option value="">Select source...</option>
                   {sourceFields.map((field) => (
@@ -269,14 +269,16 @@ export function MappingPanel() {
                 </select>
               </div>
 
-              <ArrowRightIcon className="w-5 h-5 text-slate-400 flex-shrink-0 mt-5" />
+              <div className="flex justify-center">
+                <ArrowRightIcon className="w-5 h-5 text-slate-400 rotate-90" />
+              </div>
 
-              <div className="flex-1">
-                <label className="block text-xs text-slate-500 mb-1">Target Field</label>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">Target Field</label>
                 <select
                   value={newMapping.targetField || ''}
                   onChange={(e) => setNewMapping({ ...newMapping, targetField: e.target.value })}
-                  className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded bg-white"
+                  className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white"
                 >
                   <option value="">Select target...</option>
                   {targetFields.map((field) => (
@@ -288,11 +290,11 @@ export function MappingPanel() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 onClick={handleAddMapping}
                 disabled={!newMapping.sourceField || !newMapping.targetField}
-                className="flex-1 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3 text-sm font-medium bg-primary-600 text-white rounded-lg hover:bg-primary-700 active:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add Mapping
               </button>
@@ -301,7 +303,7 @@ export function MappingPanel() {
                   setShowAddMapping(false)
                   setNewMapping({})
                 }}
-                className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+                className="px-4 py-3 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
               >
                 Cancel
               </button>
@@ -310,10 +312,10 @@ export function MappingPanel() {
         )}
       </div>
 
-      <div className="p-4 border-t border-slate-200">
+      <div className="p-4 border-t border-slate-200 bg-white">
         <button
           onClick={() => setShowAddMapping(true)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 active:bg-primary-800 transition-colors font-medium text-base shadow-sm"
         >
           <PlusIcon className="w-5 h-5" />
           Add Mapping

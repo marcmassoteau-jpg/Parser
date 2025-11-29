@@ -65,10 +65,10 @@ export function ConfigPanel() {
         <button
           onClick={() => setActiveTab('general')}
           className={clsx(
-            'flex-1 px-3 py-2 text-xs font-medium transition-colors',
+            'flex-1 px-3 py-3 text-sm font-medium transition-colors',
             activeTab === 'general'
-              ? 'text-primary-600 border-b-2 border-primary-600'
-              : 'text-slate-500 hover:text-slate-700'
+              ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/50'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
           )}
         >
           General
@@ -76,10 +76,10 @@ export function ConfigPanel() {
         <button
           onClick={() => setActiveTab('fields')}
           className={clsx(
-            'flex-1 px-3 py-2 text-xs font-medium transition-colors',
+            'flex-1 px-3 py-3 text-sm font-medium transition-colors',
             activeTab === 'fields'
-              ? 'text-primary-600 border-b-2 border-primary-600'
-              : 'text-slate-500 hover:text-slate-700'
+              ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/50'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
           )}
         >
           Fields
@@ -87,10 +87,10 @@ export function ConfigPanel() {
         <button
           onClick={() => setActiveTab('advanced')}
           className={clsx(
-            'flex-1 px-3 py-2 text-xs font-medium transition-colors',
+            'flex-1 px-3 py-3 text-sm font-medium transition-colors',
             activeTab === 'advanced'
-              ? 'text-primary-600 border-b-2 border-primary-600'
-              : 'text-slate-500 hover:text-slate-700'
+              ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/50'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
           )}
         >
           Advanced
@@ -99,16 +99,16 @@ export function ConfigPanel() {
 
       <div className="flex-1 overflow-auto p-4">
         {activeTab === 'general' && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Parser Name
               </label>
               <input
                 type="text"
                 value={config.name}
                 onChange={(e) => setConfig({ name: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-base"
                 placeholder="Enter parser name"
               />
             </div>
@@ -116,13 +116,13 @@ export function ConfigPanel() {
             {config.type === 'csv' && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     Delimiter
                   </label>
                   <select
                     value={config.delimiter}
                     onChange={(e) => setConfig({ delimiter: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-base bg-white"
                   >
                     <option value=",">Comma (,)</option>
                     <option value=";">Semicolon (;)</option>
@@ -131,20 +131,20 @@ export function ConfigPanel() {
                   </select>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between py-2">
                   <label className="text-sm font-medium text-slate-700">
                     Has Header Row
                   </label>
                   <button
                     onClick={() => setConfig({ hasHeader: !config.hasHeader })}
                     className={clsx(
-                      'w-12 h-6 rounded-full transition-colors relative',
+                      'w-14 h-8 rounded-full transition-colors relative',
                       config.hasHeader ? 'bg-primary-500' : 'bg-slate-200'
                     )}
                   >
                     <span
                       className={clsx(
-                        'absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm',
+                        'absolute top-1 w-6 h-6 bg-white rounded-full transition-transform shadow-sm',
                         config.hasHeader ? 'right-1' : 'left-1'
                       )}
                     />
@@ -152,14 +152,14 @@ export function ConfigPanel() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     Quote Character
                   </label>
                   <input
                     type="text"
                     value={config.quoteChar}
                     onChange={(e) => setConfig({ quoteChar: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm font-mono"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-base font-mono"
                     maxLength={1}
                   />
                 </div>
@@ -168,17 +168,17 @@ export function ConfigPanel() {
 
             {config.type === 'custom' && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Custom Pattern (Regex)
                 </label>
                 <textarea
                   value={config.customPattern || ''}
                   onChange={(e) => setConfig({ customPattern: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm font-mono"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-base font-mono"
                   rows={3}
                   placeholder="Enter regex pattern with named groups"
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 mt-2">
                   Use named groups: (?&lt;fieldName&gt;pattern)
                 </p>
               </div>
@@ -328,11 +328,11 @@ export function ConfigPanel() {
         )}
       </div>
 
-      <div className="p-4 border-t border-slate-200">
+      <div className="p-4 border-t border-slate-200 bg-white">
         <button
           onClick={handleReparse}
           disabled={!rawData}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 active:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-base shadow-sm"
         >
           <PlayIcon className="w-5 h-5" />
           Apply & Re-parse
