@@ -202,7 +202,12 @@ export function ParserCanvas() {
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
+      {/* Data loaded indicator */}
+      <div className="absolute top-4 left-4 z-10 bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg flex items-center gap-2">
+        <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+        {parsedData.metadata.totalRecords} records loaded
+      </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
