@@ -17,6 +17,10 @@ export interface ParserConfig {
   // Custom specific
   customPattern?: string
   parseFunction?: string
+  // Performance options
+  chunkSize?: number
+  useWasm?: boolean
+  encoding?: string
 }
 
 export interface FieldDefinition {
@@ -54,14 +58,43 @@ export interface ParsedData {
   config: ParserConfig
   records: ParsedRecord[]
   headers?: string[]
-  metadata: {
-    totalRecords: number
-    validRecords: number
-    invalidRecords: number
-    parseTime: number
-    fileSize?: number
-    fileName?: string
-  }
+  metadata: ParseMetadata
+}
+
+export interface ParseMetadata {
+  totalRecords: number
+  validRecords: number
+  invalidRecords: number
+  parseTime: number
+  fileSize?: number
+  fileName?: string
+  encoding?: string
+  parserEngine?: 'js' | 'wasm'
+  chunksProcessed?: number
+}
+
+// Progress reporting for streaming
+export interface ParseProgress {
+  phase: 'initializing' | 'detecting' | 'parsing' | 'finalizing' | 'complete' | 'error' | 'cancelled'
+  bytesProcessed: number
+  totalBytes: number
+  recordsProcessed: number
+  percentage: number
+  currentChunk?: number
+  totalChunks?: number
+  estimatedTimeRemaining?: number
+  message?: string
+}
+
+export type ProgressCallback = (progress: ParseProgress) => void
+
+// Cancelable parsing
+export interface ParseController {
+  cancel: () => void
+  pause: () => void
+  resume: () => void
+  isPaused: boolean
+  isCancelled: boolean
 }
 
 // Node Types for Visual Representation
@@ -141,4 +174,56 @@ export interface ISO20022Message {
   messageType: string
   header: Record<string, unknown>
   document: Record<string, unknown>
+}
+
+// Worker message types
+export type WorkerMessageType =
+  | 'parse'
+  | 'progress'
+  | 'result'
+  | 'error'
+  | 'cancel'
+  | 'pause'
+  | 'resume'
+  | 'init'
+  | 'ready'
+
+export interface WorkerMessage {
+  type: WorkerMessageType
+  id: string
+  payload?: unknown
+}
+
+export interface ParseRequest {
+  id: string
+  data: string | ArrayBuffer
+  config: ParserConfig
+  options?: {
+    streaming?: boolean
+    chunkSize?: number
+    sampleSize?: number
+  }
+}
+
+export interface ParseResult {
+  id: string
+  success: boolean
+  data?: ParsedData
+  error?: string
+}
+
+// Encoding detection
+export type EncodingType =
+  | 'utf-8'
+  | 'utf-16'
+  | 'utf-16be'
+  | 'utf-16le'
+  | 'iso-8859-1'
+  | 'windows-1252'
+  | 'ascii'
+
+export interface EncodingInfo {
+  encoding: EncodingType
+  confidence: number
+  hasBOM: boolean
 }

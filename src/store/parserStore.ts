@@ -5,7 +5,9 @@ import type {
   ParsedData,
   ParserNodeData,
   FieldMapping,
-  TargetSchema
+  TargetSchema,
+  ParseProgress,
+  ParseController,
 } from '../types/parser'
 
 interface ParserState {
@@ -26,6 +28,20 @@ interface ParserState {
   setIsProcessing: (processing: boolean) => void
   error: string | null
   setError: (error: string | null) => void
+
+  // Progress tracking (new)
+  progress: ParseProgress | null
+  setProgress: (progress: ParseProgress | null) => void
+  parseController: ParseController | null
+  setParseController: (controller: ParseController | null) => void
+
+  // Parser service status (new)
+  serviceStatus: {
+    workerReady: boolean
+    wasmAvailable: boolean
+    initialized: boolean
+  }
+  setServiceStatus: (status: Partial<ParserState['serviceStatus']>) => void
 
   // React Flow Nodes & Edges
   nodes: Node<ParserNodeData>[]
@@ -53,8 +69,18 @@ interface ParserState {
   expandedNodes: Set<string>
   toggleNodeExpansion: (id: string) => void
 
+  // Performance settings (new)
+  performanceSettings: {
+    useWorker: boolean
+    useWasm: boolean
+    streaming: boolean
+    chunkSize: number
+  }
+  setPerformanceSettings: (settings: Partial<ParserState['performanceSettings']>) => void
+
   // Actions
   reset: () => void
+  cancelParsing: () => void
 }
 
 const initialConfig: ParserConfig = {
@@ -66,7 +92,20 @@ const initialConfig: ParserConfig = {
   escapeChar: '\\',
 }
 
-export const useParserStore = create<ParserState>((set) => ({
+const initialServiceStatus = {
+  workerReady: false,
+  wasmAvailable: false,
+  initialized: false,
+}
+
+const initialPerformanceSettings = {
+  useWorker: true,
+  useWasm: true,
+  streaming: true,
+  chunkSize: 64 * 1024, // 64KB
+}
+
+export const useParserStore = create<ParserState>((set, get) => ({
   // Parser Configuration
   config: initialConfig,
   setConfig: (newConfig) => set((state) => ({
@@ -86,6 +125,18 @@ export const useParserStore = create<ParserState>((set) => ({
   setIsProcessing: (processing) => set({ isProcessing: processing }),
   error: null,
   setError: (error) => set({ error }),
+
+  // Progress tracking
+  progress: null,
+  setProgress: (progress) => set({ progress }),
+  parseController: null,
+  setParseController: (controller) => set({ parseController: controller }),
+
+  // Service status
+  serviceStatus: initialServiceStatus,
+  setServiceStatus: (status) => set((state) => ({
+    serviceStatus: { ...state.serviceStatus, ...status }
+  })),
 
   // React Flow Nodes & Edges
   nodes: [],
@@ -136,6 +187,12 @@ export const useParserStore = create<ParserState>((set) => ({
     return { expandedNodes: newExpanded }
   }),
 
+  // Performance settings
+  performanceSettings: initialPerformanceSettings,
+  setPerformanceSettings: (settings) => set((state) => ({
+    performanceSettings: { ...state.performanceSettings, ...settings }
+  })),
+
   // Actions
   reset: () => set({
     config: initialConfig,
@@ -144,6 +201,8 @@ export const useParserStore = create<ParserState>((set) => ({
     parsedData: null,
     isProcessing: false,
     error: null,
+    progress: null,
+    parseController: null,
     nodes: [],
     edges: [],
     mappings: [],
@@ -151,4 +210,38 @@ export const useParserStore = create<ParserState>((set) => ({
     selectedNodeId: null,
     expandedNodes: new Set(),
   }),
+
+  cancelParsing: () => {
+    const { parseController } = get()
+    if (parseController) {
+      parseController.cancel()
+      set({
+        isProcessing: false,
+        progress: null,
+        parseController: null,
+      })
+    }
+  },
 }))
+
+// Selectors for common use cases
+export const selectIsReady = (state: ParserState) =>
+  state.serviceStatus.initialized && !state.isProcessing
+
+export const selectCanUseWasm = (state: ParserState) =>
+  state.serviceStatus.wasmAvailable && state.performanceSettings.useWasm
+
+export const selectCanUseWorker = (state: ParserState) =>
+  state.serviceStatus.workerReady && state.performanceSettings.useWorker
+
+export const selectParseStats = (state: ParserState) => {
+  if (!state.parsedData) return null
+  return {
+    totalRecords: state.parsedData.metadata.totalRecords,
+    validRecords: state.parsedData.metadata.validRecords,
+    invalidRecords: state.parsedData.metadata.invalidRecords,
+    parseTime: state.parsedData.metadata.parseTime,
+    fileSize: state.parsedData.metadata.fileSize,
+    engine: state.parsedData.metadata.parserEngine,
+  }
+}

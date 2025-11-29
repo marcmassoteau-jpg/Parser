@@ -1,9 +1,9 @@
 {
   "name": "visual-parser-module",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "A visual parser module for CSV, Fixed Width, FIN, ISO 20022 and custom formats",
+  "description": "High-performance visual parser for CSV, Fixed Width, FIN, ISO 20022 and custom formats with WASM acceleration",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,13 +12,23 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./styles": "./dist/assets/index.css"
+    "./styles": "./dist/assets/index.css",
+    "./service": {
+      "import": "./dist/parsers/ParserService.js",
+      "types": "./dist/parsers/ParserService.d.ts"
+    }
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:lib": "tsc && vite build --mode lib",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build:full": "npm run build:wasm && tsc && vite build",
+    "build:lib": "npm run build:wasm && tsc && vite build --mode lib",
+    "build:wasm": "cd rust && wasm-pack build --target web --out-dir ../src/wasm --out-name parser_wasm",
+    "build:wasm:release": "cd rust && wasm-pack build --target web --release --out-dir ../src/wasm --out-name parser_wasm",
+    "build:wasm:dev": "cd rust && wasm-pack build --target web --dev --out-dir ../src/wasm --out-name parser_wasm",
+    "clean": "rm -rf dist src/wasm rust/target",
+    "clean:wasm": "rm -rf src/wasm rust/target",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-pattern src/wasm",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -28,7 +38,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "playwright:install": "playwright install --with-deps"
+    "playwright:install": "playwright install --with-deps",
+    "benchmark": "node scripts/benchmark.js",
+    "setup:rust": "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh && cargo install wasm-pack"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
@@ -85,7 +97,14 @@
     "fixed-width",
     "visual",
     "react",
-    "data-mapping"
+    "data-mapping",
+    "wasm",
+    "high-performance",
+    "streaming",
+    "web-worker"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
