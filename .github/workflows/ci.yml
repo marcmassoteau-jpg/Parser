@@ -109,9 +109,42 @@ jobs:
         run: |
           git push origin --delete ${{ github.ref_name }} || true
 
-  # Deploy to GitHub Pages when main is updated
+  # Deploy to GitHub Pages after feature branch merge
+  # This runs in the same workflow since pushes with GITHUB_TOKEN don't trigger new workflows
+  deploy-after-merge:
+    needs: [merge-to-main, e2e]
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Deployment complete
+        run: |
+          echo "Deployed to: ${{ steps.deployment.outputs.page_url }}"
+
+  # Deploy to GitHub Pages when main is updated directly (e.g., manual push)
   deploy:
-    needs: [test]
+    needs: [test, e2e]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
