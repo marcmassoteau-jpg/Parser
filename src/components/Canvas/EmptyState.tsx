@@ -3,7 +3,7 @@ import { useParserStore } from '../../store/parserStore'
 import { parse, detectParserType, suggestDelimiter } from '../../parsers'
 
 export function EmptyState() {
-  const { config, setConfig, setRawData, setFileName, setParsedData, setIsProcessing, setError } = useParserStore()
+  const { config, setConfig, setRawData, setFileName, setParsedData, setIsProcessing, setError, isProcessing, error } = useParserStore()
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -247,6 +247,21 @@ TRTRAILER_RECORD  2024012000096901.50   TOTAL: 5 TRANSACTIONS         REF-TAIL-0
             </p>
           </div>
         </label>
+
+        {/* Loading indicator */}
+        {isProcessing && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl text-center">
+            <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+            <span className="text-sm text-blue-600">Processing...</span>
+          </div>
+        )}
+
+        {/* Error display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm text-red-600 font-medium">Error: {error}</p>
+          </div>
+        )}
 
         <div className="text-center mb-6">
           <span className="text-sm text-slate-500">Or try a sample to explore capabilities</span>
